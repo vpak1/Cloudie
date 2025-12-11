@@ -3,7 +3,7 @@
  */
 const fetch = require('cross-fetch'); 
 
-const waitForServer = async (url, retries = 5, delay = 2000) => {
+const waitForServer = async (url, retries = 30, delay = 2000) => {
   for (let i = 0; i < retries; i++) {
     try {
       const response = await fetch(url);
