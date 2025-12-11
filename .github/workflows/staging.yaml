@@ -12,10 +12,10 @@ on:
 
 jobs:
   # ==========================================
-  # RUN ALL TESTS
+  # JOB 1: RUN UNIT TESTS (Fast, no server)
   # ==========================================
   test:
-    name: Run Tests
+    name: Run Unit Tests
     runs-on: ubuntu-latest
     
     steps:
@@ -31,15 +31,14 @@ jobs:
       - name: Install and test
         run: |
           npm ci
-          # Build the React app to ensure there are no compilation errors
           npm run build
-          # Run tests with CI=true to prevent hanging in "watch" mode
-          npm test
+          # Exclude smoke tests here because the server isn't running yet!
+          npm test -- --testPathIgnorePatterns=src/smoke.test.js
         env:
           CI: true
 
   # ==========================================
-  # BUILD AND TEST STAGING CONTAINER
+  # JOB 2: BUILD DOCKER & RUN SMOKE TESTS
   # ==========================================
   staging-docker:
     name: Staging Docker Build & Verify
@@ -49,6 +48,15 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
@@ -60,36 +68,28 @@ jobs:
           echo "Waiting for container to start..."
           sleep 15 
 
-      - name: Verify staging deployment
+      - name: Verify staging deployment (Curl Check)
         run: |
-          echo "Checking staging health endpoint..."
-          
-          # [CUSTOMIZED] Checks localhost:5000/health (Your staging port)
           curl -f http://localhost:5000/health || exit 1
-          
-          echo ""
-          echo "Checking staging responds..."
-          # Checks that the homepage returns content
-          curl -s http://localhost:5000/
-          
-          echo ""
-          echo "✅ Staging deployment verified!"
+          echo "✅ Health endpoint responded"
 
+      # --- UPDATED: Runs the specific smoke test file ---
       - name: Run smoke tests
         run: |
           echo "Running smoke tests against staging..."
-          
-          # Placeholder for future smoke tests
-          # npm run test:smoke
-          
+          npm test src/smoke.test.js
           echo "✅ Smoke tests passed!"
+
+      - name: Show Docker Logs (If Failed)
+        if: failure() 
+        run: docker compose logs staging
 
       - name: Cleanup
         if: always()
         run: docker compose down
 
   # ==========================================
-  # STAGING SUMMARY
+  # JOB 3: SUMMARY
   # ==========================================
   staging-summary:
     name: Staging Summary
@@ -102,18 +102,8 @@ jobs:
           echo "============================================"
           echo "  STAGING DEPLOYMENT READY"
           echo "============================================"
-          echo ""
-          echo "  Branch:      staging"
-          echo "  Environment: STAGING"
-          echo "  Port:        5000"
-          echo ""
           echo "  All checks passed:"
-          echo "    ✅ Tests & Build"
+          echo "    ✅ Unit Tests"
           echo "    ✅ Docker Startup"
-          echo "    ✅ Health Check"
-          echo ""
-          echo "  To deploy locally, run:"
-          echo "    docker compose up staging -d"
-          echo ""
-          echo "  Then visit: http://localhost:5000"
+          echo "    ✅ Smoke Tests"
           echo "============================================"

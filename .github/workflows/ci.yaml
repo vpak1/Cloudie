@@ -12,7 +12,7 @@ on:
 
 jobs:
   # ==========================================
-  # OPTION 1: NODE.JS PROJECT
+  # JOB 1: UNIT TESTS (Node.js)
   # ==========================================
   test-node:
     name: Test (Node.js)
@@ -34,15 +34,14 @@ jobs:
       - name: Build Project
         run: npm run build
 
-      - name: Run tests
-        run: npm test
+      - name: Run Unit Tests
+        run: npm test -- --testPathIgnorePatterns=src/smoke.test.js
         env:
           CI: true
 
   # ==========================================
-  # DOCKER BUILD TEST (ALL PROJECTS)
+  # JOB 2: DOCKER BUILD CHECK
   # ==========================================
-  
   build-docker:
     name: Docker Build Test
     runs-on: ubuntu-latest
