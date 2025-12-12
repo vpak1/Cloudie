@@ -155,7 +155,7 @@ Switched the Jest environment to node directly inside the test file and imported
 
 | Field        | Value |
 |-------------|--------|
-| **Issue ID** | PROJ-001 |
+| **Issue ID** | PROJ-003 |
 | **Title**    | Add functional + non-functional tests and fixture data |
 | **Type**     | ✨ Feature |
 | **Priority** | 🟡 Medium |
