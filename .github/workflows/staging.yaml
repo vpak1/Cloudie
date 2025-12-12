@@ -1,0 +1,109 @@
+# ============================================
+# Staging Deployment Pipeline
+# ============================================
+
+name: Staging Deployment
+
+on:
+  push:
+    branches: [staging]
+  pull_request:
+    branches: [staging]
+
+jobs:
+  # ==========================================
+  # JOB 1: RUN UNIT TESTS (Fast, no server)
+  # ==========================================
+  test:
+    name: Run Unit Tests
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+
+      - name: Install and test
+        run: |
+          npm ci
+          npm run build
+          # Exclude smoke tests here because the server isn't running yet!
+          npm test -- --testPathIgnorePatterns=src/smoke.test.js
+        env:
+          CI: true
+
+  # ==========================================
+  # JOB 2: BUILD DOCKER & RUN SMOKE TESTS
+  # ==========================================
+  staging-docker:
+    name: Staging Docker Build & Verify
+    runs-on: ubuntu-latest
+    needs: test
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build and start staging container
+        run: |
+          docker compose build staging
+          docker compose up staging -d
+          echo "Waiting for container to start..."
+          sleep 15 
+
+      - name: Verify staging deployment (Curl Check)
+        run: |
+          curl -f http://localhost:5000/health || exit 1
+          echo "✅ Health endpoint responded"
+
+      # --- UPDATED: Runs the specific smoke test file ---
+      - name: Run smoke tests
+        run: |
+          echo "Running smoke tests against staging..."
+          npm test src/smoke.test.js
+          echo "✅ Smoke tests passed!"
+
+      - name: Show Docker Logs (If Failed)
+        if: failure() 
+        run: docker compose logs staging
+
+      - name: Cleanup
+        if: always()
+        run: docker compose down
+
+  # ==========================================
+  # JOB 3: SUMMARY
+  # ==========================================
+  staging-summary:
+    name: Staging Summary
+    runs-on: ubuntu-latest
+    needs: [test, staging-docker]
+    
+    steps:
+      - name: Deployment Summary
+        run: |
+          echo "============================================"
+          echo "  STAGING DEPLOYMENT READY"
+          echo "============================================"
+          echo "  All checks passed:"
+          echo "    ✅ Unit Tests"
+          echo "    ✅ Docker Startup"
+          echo "    ✅ Smoke Tests"
+          echo "============================================"
