@@ -1,26 +1,30 @@
 # Code Review Template
 
-**PR Title:** Add functional + non-functional tests, test fixtures, and governance templates  
+**PR Title:** Add completed project with docker, smoke, functional + non-functional tests, test fixtures, and governance templates  
 **PR Link:** https://github.com/vpak1/Cloudie  
 **Author:** Sofya  
 **Reviewer:** Sofya  
 **Date:** 2025-12-11  
-**Branch:** feature/sofya → staging
+**Branch:** staging → main
 
 ---
 
 ## 1. Overview
 
 **Summary of Changes:**
+- Added successfuly builded Dockerfile
+- Added docker-compose.yml with staging & production
+- Added 2 smoke tests
+- Added 3 working workflows
 - Added 2 functional tests (API call + UI rendering)
 - Added 1 non-functional test (checks `units=imperial` configuration)
 - Added shared test fixture (`weatherFixture.js`)
 - Added governance templates (issue + code review)
 
 **Related Issues/Tickets:**
-- [ ] Issue #001: Missing functional tests  
-- [ ] Issue #002: Missing non-functional test  
-- [ ] Issue #003: Missing governance templates  
+- [ ] Issue #PROJ-001: CI Pipeline Fails on Docker Build due to Uppercase Repo Name 
+- [ ] Issue #PROJ-002: Smoke Tests Fail with "Cross Origin Forbidden" & Connection Refused
+- [ ] Issue #PROJ-003: Add functional + non-functional tests and fixture data
 
 ---
 
@@ -39,14 +43,16 @@
 
 ## 3. Testing
 
+- [x] Tests if Dockerfile builds successfully
 - [x] Tests added or updated  
 - [x] Tests pass locally  
 - [x] Tests pass in CI (GitHub Actions)  
 
 **How was this tested?**
-> Ran `npm test -- --watch=false`.  
-> Verified all 5 tests pass: 2 smoke (existing), 2 functional, 1 non-functional.  
+> Ran `npm test -- --watch=false`. 
+> Verified all 5 tests pass: 2 smoke (existing), 2 functional, 1 non-functional.
 > Confirmed test workflow triggers on push to `staging`.
+> Confirmed docker-compose up workd correctly
 
 ---
 
@@ -55,8 +61,8 @@
 - [x] Low  
 
 **Impact Description:**
-> Only test-related files and documentation were added.  
-> No production code was modified, so risk is minimal.
+> Completed project with all functionalities.  
+> Everything was tested and all workflows running correctly, so risk is minimal.
 
 ---
 
@@ -67,4 +73,4 @@
 
 **Final Comments:**
 > Everything meets assignment requirements.  
-> Safe to merge into `staging`.
+> Safe to merge into `main`.
