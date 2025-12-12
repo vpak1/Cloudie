@@ -151,3 +151,48 @@ Switched the Jest environment to node directly inside the test file and imported
 2025-12-11
 ---
 
+## Issue Details
+
+| Field        | Value |
+|-------------|--------|
+| **Issue ID** | PROJ-001 |
+| **Title**    | Add functional + non-functional tests and fixture data |
+| **Type**     | ✨ Feature |
+| **Priority** | 🟡 Medium |
+| **Status**   | ✅ Done (Resolved) |
+| **Assignee** | Sofya |
+| **Reporter** | Sofya |
+| **Created Date** | [2025-12-11] |
+| **Due Date** | [2025-12-11] |
+
+
+---
+
+## Description
+
+This issue tracks the work required to implement all test-related components for the Cloudie application, including 2 functional tests, 1 non-functional test, and a reusable fixture file.
+
+---
+
+## Steps to Reproduce / Acceptance Criteria
+
+### Acceptance Criteria:
+1. Functional Test #1 validates weather API call on Enter press  
+2. Functional Test #2 validates weather data rendered correctly  
+3. Non-functional Test checks for `units=imperial` configuration  
+4. Test fixture (`weatherFixture.js`) created under `src/tests/`  
+5. All tests pass locally using `npm test -- --watch=false`  
+6. Tests execute successfully in GitHub Actions workflow  
+
+**Expected Result:**
+- All five total tests (including existing smoke tests) pass with no failures.
+
+---
+
+## Additional Notes
+
+- This issue will be closed once the feature branch (`feature/sofya`) is merged into `staging`.
+
+### Resolution Date
+
+2025-12-11
